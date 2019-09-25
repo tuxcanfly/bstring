@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <malloc.h>
 
 #include "cashaddr.h"
 
@@ -351,12 +352,12 @@ bstring_cashaddr_encode(
   uint8_t version_byte = type << 3 | encoded_size;
 
   size_t data_len = hash_len + 1;
-  uint8_t data[data_len];
+  uint8_t* data = (uint8_t*) malloc(sizeof(uint8_t) * data_len);
   data[0] = version_byte;
   memcpy(data + 1, hash, hash_len);
 
   size_t converted_len = 0;
-  uint8_t converted[(data_len * 8 / 5) + 1];
+  uint8_t* converted = (uint8_t*) malloc(sizeof(uint8_t) * ((data_len * 8 / 5) + 1));
 
   if (!convert_bits(err, converted, &converted_len, 5, data, data_len, 8, 1))
     return false;
@@ -396,7 +397,7 @@ bstring_cashaddr_decode(
   }
 
   size_t _converted_len = (data_len * 5 / 8) + 1;
-  uint8_t converted[_converted_len + 1];
+  uint8_t* converted = (uint8_t*) malloc(sizeof(uint8_t) * (_converted_len + 1));
   memset(&converted, 0, _converted_len + 1);
   size_t converted_len = 0;
 
